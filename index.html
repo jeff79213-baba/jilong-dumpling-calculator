@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>吉隆湯包 - 價格計算機</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: #fef7e6;
+    color: #3d2b1a;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  .header {
+    background: linear-gradient(135deg, #e85d2c, #c73e1d);
+    color: #fff;
+    padding: 36px 20px 30px;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 28px; font-weight: 800; letter-spacing: 2px; }
+  .header p { font-size: 14px; opacity: .9; margin-top: 4px; }
+  .container { max-width: 420px; margin: 0 auto; padding: 20px 16px 40px; }
+  .menu-item {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .menu-item .info { display: flex; flex-direction: column; }
+  .menu-item .name { font-size: 17px; font-weight: 700; }
+  .menu-item .price { font-size: 14px; color: #e85d2c; font-weight: 600; margin-top: 2px; }
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .qty-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid #e85d2c;
+    background: #fff;
+    color: #e85d2c;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .qty-btn:active { transform: scale(.9); }
+  .qty-btn.minus { border-color: #ccc; color: #999; }
+  .qty-btn.minus:active { border-color: #e85d2c; color: #e85d2c; }
+  .qty-num {
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: center;
+    color: #3d2b1a;
+  }
+  .total-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    margin-top: 8px;
+    text-align: center;
+  }
+  .total-label { font-size: 14px; color: #888; font-weight: 600; }
+  .total-amount {
+    font-size: 48px;
+    font-weight: 800;
+    color: #c73e1d;
+    margin: 6px 0;
+  }
+  .total-amount span { font-size: 24px; font-weight: 600; }
+  .order-summary {
+    font-size: 13px;
+    color: #888;
+    margin-top: 6px;
+  }
+  .order-summary span { margin: 0 4px; }
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    background: #f0ebe3;
+    color: #666;
+    letter-spacing: 1px;
+    margin-top: 12px;
+    font-family: inherit;
+  }
+  .reset-btn:active { transform: scale(.97); background: #e5ddd3; }
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #bbb;
+    margin-top: 24px;
+    padding-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>吉隆湯包</h1>
+  <p>點餐計算機 · 快速算總價</p>
+</div>
+
+<div class="container">
+
+  <div class="menu-item">
+    <div class="info">
+      <div class="name">湯包</div>
+      <div class="price">$75 / 籠</div>
+    </div>
+    <div class="qty-control">
+      <button class="qty-btn minus" data-item="dumpling">−</button>
+      <span class="qty-num" id="dumplingQty">0</span>
+      <button class="qty-btn plus" data-item="dumpling">+</button>
+    </div>
+  </div>
+
+  <div class="menu-item">
+    <div class="info">
+      <div class="name">紅茶</div>
+      <div class="price">$15 / 杯</div>
+    </div>
+    <div class="qty-control">
+      <button class="qty-btn minus" data-item="tea">−</button>
+      <span class="qty-num" id="teaQty">0</span>
+      <button class="qty-btn plus" data-item="tea">+</button>
+    </div>
+  </div>
+
+  <div class="menu-item">
+    <div class="info">
+      <div class="name">奶茶</div>
+      <div class="price">$20 / 杯</div>
+    </div>
+    <div class="qty-control">
+      <button class="qty-btn minus" data-item="milkTea">−</button>
+      <span class="qty-num" id="milkTeaQty">0</span>
+      <button class="qty-btn plus" data-item="milkTea">+</button>
+    </div>
+  </div>
+
+  <div class="total-card">
+    <div class="total-label">總金額</div>
+    <div class="total-amount" id="totalAmount">$0</div>
+    <div class="order-summary" id="orderSummary">還沒有點餐喔</div>
+  </div>
+
+  <button class="reset-btn" id="resetBtn">全部歸零</button>
+
+  <div class="footer">吉隆湯包 · 點一點就幫你算好</div>
+</div>
+
+<script>
+const prices = { dumpling: 75, tea: 15, milkTea: 20 };
+const names = { dumpling: '湯包', tea: '紅茶', milkTea: '奶茶' };
+const units = { dumpling: '籠', tea: '杯', milkTea: '杯' };
+const qtys = { dumpling: 0, tea: 0, milkTea: 0 };
+
+function updateUI() {
+  for (const key of Object.keys(qtys)) {
+    document.getElementById(key + 'Qty').textContent = qtys[key];
+  }
+  const total = qtys.dumpling * prices.dumpling + qtys.tea * prices.tea + qtys.milkTea * prices.milkTea;
+  document.getElementById('totalAmount').textContent = '$' + total;
+
+  const parts = [];
+  for (const key of Object.keys(qtys)) {
+    if (qtys[key] > 0) {
+      parts.push(names[key] + ' ' + qtys[key] + units[key]);
+    }
+  }
+  document.getElementById('orderSummary').textContent = parts.length ? parts.join(' · ') : '還沒有點餐喔';
+}
+
+document.querySelectorAll('.qty-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const item = this.dataset.item;
+    const isPlus = this.classList.contains('plus');
+    if (isPlus) {
+      qtys[item]++;
+    } else {
+      if (qtys[item] > 0) qtys[item]--;
+    }
+    updateUI();
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click', function() {
+  for (const key of Object.keys(qtys)) qtys[key] = 0;
+  updateUI();
+});
+</script>
+</body>
+</html>
